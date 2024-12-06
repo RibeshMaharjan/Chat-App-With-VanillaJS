@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Title</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS v5.2.1 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body>
+    <header>
+      <!-- place navbar here -->
+    </header>
+    <main>
+      <!-- Main Container -->
+      <div class="container mt-5 py-4 border rounded border-1">
+        <div class="row ">
+          <!-- chat list sidebar -->
+          <div class="col-4">
+            <div class="card border border-0">
+              <style>
+                .pfp-img {
+                  height: 50px;
+                }
+              </style>
+                <!-- Room ID Input -->
+                <div class="input-group mb-3">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Room ID"
+                    aria-label="Button"
+                    aria-describedby=""
+                    name="roomId"
+                    id="roomId"
+                  />
+                  <button class="btn btn-outline-secondary" type="button" id="roomIdBtn">
+                    Join
+                  </button>
+                </div>
+
+                <!-- chat list starts -->
+                <div class="list-group list-group-flush mt-2 mb-0">
+                  <div class="list-group-item list-group-item-action rounded " aria-current="true" id="public" onclick="toggleChat('public')">
+                    <div class="d-flex align-items-center w-100 gap-3">
+                      <img src="image/groupchat.png" class="rounded-circle pfp-img" alt="public">
+                      <div class="">
+                        <h6 class="mb-1">Public Chat</h6>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <div class="col-8 chatbox-container">
+            <div class="chat-section d-block" id="public-chat">
+
+            <!-- Chat Box -->
+            <div class="chat-header border-bottom pb-3 mb-3">
+              <div class="row">
+                  <div class="d-flex align-items-center gap-3">
+                      <a href="javascript:void(0);" data-toggle="modal" data-target="#view_info">
+                          <img src="image/groupchat.png" class="pfp-img rounded-circle" alt="avatar">
+                      </a>
+                      <div class="card border-0">
+                          <h6 class="m-b-0">Public</h6>
+                          <!-- <small>Last seen: 2 hours ago</small> -->
+                      </div>
+                  </div>
+              </div>
+            </div>
+
+            <div class="chatBox-public">
+
+              <!-- Received Message -->
+              <div class="d-flex flex-row justify-content-start mb-4">
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp" alt="avatar 1"
+                  style="width: 45px; height: 100%;">
+                <div class="p-3 ms-3" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                  <p class="small mb-0">...</p>
+                </div>
+              </div>
+
+              <!-- Send Message -->
+              <div class="d-flex flex-row justify-content-end mb-4">
+                <div class="p-3 me-3 border" style="border-radius: 15px; background-color: #fbfbfb;">
+                  <p class="small mb-0">Thank you, I really like your product.</p>
+                </div>
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava2-bg.webp" alt="avatar 1"
+                style="width: 45px; height: 100%;">
+              </div>
+            </div>
+
+            <!-- Message Box -->
+            <div class="form-floating mb-3">
+              <textarea class="form-control" placeholder="Leave a comment here" id="public-message" style="height: 100px"></textarea>
+              <label for="message">Message</label>
+            </div>
+
+            <!-- Send Message -->
+            <div class="d-grid gap-2">
+              <button
+              type="button"
+              name="sendMessage"
+              id="sendMessage"
+              onclick="sendMessage()"
+              class="btn btn-primary"
+              >
+              Send Message
+            </button>
+            </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <!-- place footer here -->
+    </footer>
+    <!-- Bootstrap JavaScript Libraries -->
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+    
+    <script>
+      // grab elements
+      const room = document.querySelector('#roomId');
+      const roomIdBtn = document.querySelector('#roomIdBtn');
+      // const sendMessageBtn = document.querySelector('#sendMessage');
+      const chatlist = document.querySelector('.list-group'); 
+     
+      function toggleChat(id) {
+        const chat = document.querySelector(`#${id}-chat`);
+        const allChat = document.querySelectorAll(`.chat-section`);
+
+        allChat.forEach(chat => {
+          if(chat.classList.contains('d-block')) {
+            // chat.classList.remove('');
+            chat.classList.replace('d-block', 'd-none');
+            // console.log(chat);
+            
+          }
+        })
+        chat.classList.replace('d-none', 'd-block');    
+      }
+
+      // send message to server
+      function sendMessage(receiver = '') {
+        const messagebox = document.querySelector(`#${receiver}-message`) || document.querySelector('#public-message');
+        console.log(receiver);
+        const sender = socket.id;
+        const message = messagebox?.value;
+        // const roomId = room?.value;
+
+        if(!message) return;
+
+        // trigger send-message event
+        // passed message room id and a function
+        socket.emit('send-message', message, receiver, sender, messageDelivered);
+        messagebox.value = '';
+      }
+      
+      // displays the send message on chatbox
+      function messageDelivered(message, client) {
+        const chatBox = document.querySelector(`.chatBox-${client}`) || document.querySelector(`.chatBox-public`);
+
+        chatBox.innerHTML += `
+          <div class="d-flex flex-row justify-content-end mb-4">
+              <div class="p-3 me-3 border" style="border-radius: 15px; background-color: #fbfbfb;">
+                <p class="small mb-0">${message}</p>
+              </div>
+              <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava2-bg.webp" alt="avatar 1"
+                style="width: 45px; height: 100%;">
+            </div>
+        `;
+      }
+
+      // displays the recieved message on chatbox
+      function receiveMessage(message, client, sender) {
+        console.log(client);
+        
+        const chatBox = document.querySelector(`.chatBox-${sender}`) || document.querySelector(`.chatBox-public`);
+
+        chatBox.innerHTML += `
+          <div class="d-flex flex-row justify-content-start mb-4">
+            <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp" alt="avatar 1"
+              style="width: 45px; height: 100%;">
+            <div class="p-3 ms-3" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+              <p class="small mb-0">${message}</p>
+            </div>
+          </div>
+        `;
+      }
+      
+      // trigger sendMessage on click
+      // sendMessageBtn.addEventListener('click', sendMessage);
+
+      function joinMessage(room) {
+        console.log('Joined : ', room);
+      }
+    
+      // req server to Join a room
+      function joinRoom() {
+        const roomId = room?.value;
+        socket.emit('join-room', roomId, joinMessage)        
+      }
+
+      function addChatBox(client) {
+        const chatSection = document.querySelector('.chatbox-container');
+
+        chatSection.innerHTML += `
+          <div class="chat-section d-none" id="${client}-chat">
+            <!-- Chat Box -->
+            <div class="chat-header border-bottom pb-3 mb-3">
+              <div class="row">
+                  <div class="d-flex align-items-center gap-3">
+                      <a href="javascript:void(0);" data-toggle="modal" data-target="#view_info">
+                          <img src="image/pgp.png" class="pfp-img rounded-circle" alt="avatar">
+                      </a>
+                      <div class="card border-0">
+                          <h6 class="m-b-0">${client}</h6>
+                          <!-- <small>Last seen: 2 hours ago</small> -->
+                      </div>
+                  </div>
+              </div>
+          </div>
+            <div class="chatBox-${client}">
+
+              <!-- Received Message -->
+              <div class="d-flex flex-row justify-content-start mb-4">
+                <img src="image/pgp.png" alt="avatar 1"
+                  style="width: 45px; height: 100%; border-radius:50%;">
+                <div class="p-3 ms-3" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                  <p class="small mb-0">...</p>
+                </div>
+              </div>
+
+              <!-- Send Message -->
+              <div class="d-flex flex-row justify-content-end mb-4">
+                <div class="p-3 me-3 border" style="border-radius: 15px; background-color: #fbfbfb;">
+                  <p class="small mb-0">Thank you, I really like your product.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Message Box -->
+            <div class="form-floating mb-3">
+              <textarea class="form-control" placeholder="Leave a comment here" id="${client}-message" style="height: 100px"></textarea>
+              <label for="message">Message</label>
+            </div>
+
+            <!-- Send Message -->
+            <div class="d-grid gap-2">
+              <button
+              type="button"
+              name="sendMessage"
+              id="sendMessage"
+              onclick="sendMessage('${client}')"
+              class="btn btn-primary"
+              >
+              Send Message
+            </button>
+            </div>
+          </div>
+        `;
+      }
+
+      function addClients(clients) {
+        
+        for(let client of clients) {
+          
+          if(client === socket.id) return;
+
+          chatlist.innerHTML += `
+            <div class="list-group-item list-group-item-action overflow-hidden" id="${client}" onclick="toggleChat('${client}')">
+              <div class="d-flex align-items-center w-100 gap-3">
+                <img src="image/pgp.png" class="rounded-circle pfp-img" alt="${client}">
+                <div class="text-wrap">
+                  ${client}
+                </div>
+              </div>
+            </div>
+          `;
+
+          addChatBox(client);
+
+        }
+      }
+
+      function addNewClient(id) {
+
+        if(id === socket.id) return;
+        
+        chatlist.innerHTML += `
+          <div class="list-group-item list-group-item-action overflow-hidden" id="${id}" onclick="toggleChat('${id}')">
+            <div class="d-flex align-items-center w-100 gap-3">
+              <img src="image/pgp.png" class="rounded-circle pfp-img" alt="${id}">
+              <div class="text-wrap">
+                ${id}
+              </div>
+            </div>
+          </div>
+        `;
+
+        addChatBox(id);
+      }
+
+      // trigger joinRoom on click
+      roomIdBtn.addEventListener('click', joinRoom);
+
+      const socket = io("http://localhost:8080");
+
+      socket.on('connect', (response) => {
+        console.log('You are connected!', socket.id);
+        // socket.on('close', () => {
+          //   console.log('You are disconnected!');
+          // })
+
+        socket.on('get-all-clients', clients => {
+          addClients(clients);
+        });
+      })
+        
+      socket.on('receive-message', (message, receiver, sender) => {
+        receiveMessage(message, receiver, sender);
+      })
+      
+      socket.on('new-client', (clientId) => {
+        addNewClient(clientId);
+      })
+        
+      
+    </script>
+  </body>
+</html>
